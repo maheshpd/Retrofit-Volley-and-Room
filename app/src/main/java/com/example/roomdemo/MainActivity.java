@@ -1,244 +1,149 @@
 package com.example.roomdemo;
 
-import android.os.Build;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.widget.TextView;
+import android.util.ArrayMap;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import okhttp3.RequestBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity {
     private RetrofitApi retrofitApi;
-    TextView textView;
+    private RetrofitDao retrofitDao;
+
+    RecyclerView recyclerView;
+    VoterAdapter adapter;
 
     String dataurl = "https://admin.electionwinner.in//ElectionRoute/Api_getallvoterthread";
-
+    List<VoterModel> list = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        textView = findViewById(R.id.textView);
-
-//        Gson gson = new GsonBuilder().serializeNulls().create();
-//
-//        Retrofit retrofit = new Retrofit.Builder()
-//                .baseUrl("https://admin.electionwinner.in//ElectionRoute/")
-//                .addConverterFactory(GsonConverterFactory.create(gson))
-//                .build();
-//
-//        retrofitApi = retrofit.create(RetrofitApi.class);
-
         getPost();
+
+        recyclerView = findViewById(R.id.recycler_data);
+       adapter = new VoterAdapter(list,MainActivity.this);
+
+        LinearLayoutManager llm = new LinearLayoutManager(this);
+
     }
 
     private void getPost() {
+        Map<String, Object> jsonParam = new ArrayMap<>();
+        jsonParam.put("Voter_SrNo1", 1);
+        jsonParam.put("Voter_SrNo2", 100);
 
-        RequestQueue queue = Volley.newRequestQueue(this);
+        Gson gson = new GsonBuilder().serializeNulls().create();
 
-        Map<String, Integer> params = new HashMap<>();
-        params.put("Voter_SrNo1", 1);
-        params.put("Voter_SrNo2", 100);
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://admin.electionwinner.in//ElectionRoute/")
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .build();
+        retrofitApi = retrofit.create(RetrofitApi.class);
 
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(dataurl,
-                new JSONObject(params), new com.android.volley.Response.Listener<JSONObject>() {
-            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+        RequestBody body = RequestBody.create(okhttp3.MediaType.parse("application/json; charset=utf-8"),(new JSONObject(jsonParam)).toString());
+
+        Call<List<VoterModel>> call = retrofitApi.getPost(body);
+
+        call.enqueue(new Callback<List<VoterModel>>() {
             @Override
-            public void onResponse(JSONObject response) {
-                try {
-                    JSONArray arr = new JSONArray(response);
-                    JSONObject c = null;
-                    for (int i = 0; i < arr.length(); i++) {
-                        c = arr.getJSONObject(i);
-                        int voter_id = Integer.parseInt(c.getString("voter_id"));
-                        int votersrno = Integer.parseInt(c.getString("votersrno"));
-                        String voterno = c.getString("voterno");
-                        String VOTING_CENTER = c.getString("VOTING_CENTER");
-                        String gender = c.getString("gender");
-                        int age = Integer.parseInt(c.getString("age"));
-                        String voter_namemarathi = c.getString("voter_namemarathi");
-                        int part_no = Integer.parseInt(c.getString("part_no"));
-
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
+            public void onResponse(Call<List<VoterModel>> call, retrofit2.Response<List<VoterModel>> response) {
+                if (!response.isSuccessful()) {
+                    Toast.makeText(MainActivity.this, "Response Code " + response.code(), Toast.LENGTH_SHORT).show();
                 }
+                writeRecycler(response.body());
             }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Toast.makeText(MainActivity.this, " " + error.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        }) {
-            @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
-                HashMap<String, String> headers = new HashMap<String, String>();
-                headers.put("Content-Type", "application/json; charset=utf-8");
-                return headers;
-            }
-        };
 
+            @Override
+            public void onFailure(Call<List<VoterModel>> call, Throwable t) {
 
-        queue.add(jsonObjectRequest);
+            }
+        });
 
     }
-//
-//
-////        StringRequest sr = new StringRequest(Request.Method.POST, dataurl, new Response.Listener<String>() {
-////            @Override
-////            public void onResponse(String response) {
-////                try {
-////                    JSONArray arr = new JSONArray(response);
-////                    JSONObject c = null;
-////                    for (int i = 0; i < arr.length(); i++) {
-////                        c = arr.getJSONObject(i);
-////                        int voter_id = Integer.parseInt(c.getString("voter_id"));
-////                        int votersrno = Integer.parseInt(c.getString("votersrno"));
-////                        String voterno = c.getString("voterno");
-////                        String VOTING_CENTER = c.getString("VOTING_CENTER");
-////                        String gender = c.getString("gender");
-////                        int age = Integer.parseInt(c.getString("age"));
-////                        String voter_namemarathi = c.getString("voter_namemarathi");
-////                        int part_no = Integer.parseInt(c.getString("part_no"));
-////
-////
-//////                        SelectTagModel stm = new SelectTagModel(name, place, tag, time, ctf, date, tf,sessionname);
-//////                        taglist.add(stm);
-//////                        progressDialog.dismiss();
-//////                        tagAdapter.notifyDataSetChanged();
-////
-////
-//////                        VoterModel voterModel = new VoterModel(voter_namemarathi, gender, voterno, VOTING_CENTER, voter_id, votersrno, age, part_no);
-//////
-//////
-//////                        String content = "";
-//////                        content += "Voter id: " + voterModel.voter_id + "\n";
-//////                        content += "Voter serialno: " + voterModel.votersrno + "\n";
-//////                        content += "Voting center: " + voterModel.VOTING_CENTER + "\n";
-//////                        content += "Voter no: " + voterModel.voterno + "\n";
-//////
-//////                        textView.append(content);
-////
-////
-////                    }
-////                } catch (JSONException e) {
-////                    e.printStackTrace();
-////                }
-////            }
-////        }, new Response.ErrorListener() {
-////            @Override
-////            public void onErrorResponse(VolleyError error) {
-////                Toast.makeText(MainActivity.this, "", Toast.LENGTH_SHORT).show();
-////            }
-////        }) {
-////            @Override
-////            protected Map<String, String> getParams() throws AuthFailureError {
-////                JsonObject jsonObject = new JsonObject();
-////                jsonObject.add("Voter_SrNo1",1);
-////
-////                Map<String, String> params = new HashMap<>();
-////                params.put("Voter_SrNo1", "1");
-////                params.put("Voter_SrNo2", "100");
-////                return params;
-////
-////            }
-////        };
-//
-//
-//        queue.add(jsonObjectRequest);
-//    }
 
-//    private void getPost() {
-////        Map<String, Integer> para = new HashMap<>();
-////        para.put("Voter_SrNo1", 1);
-////        para.put("Voter_SrNo2", 100);
-//
-//        JSONObject jsonObject = new JSONObject();
-//        Call<List<VoterModel>> call = null;
+    private void writeRecycler(List<VoterModel> body) {
+        VoterAdapter adapter = new VoterAdapter(body,MainActivity.this);
+        recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
+        recyclerView.setAdapter(adapter);
+        recyclerView.setHasFixedSize(true);
+        adapter.notifyDataSetChanged();
+    }
+
+//    private void writeRecycler(Response<List<VoterModel>> response) {
 //        try {
-//            jsonObject = new JSONObject();
-//            jsonObject.put("Voter_SrNo1",1);
-//            jsonObject.put("Voter_SrNo2", 100);
+//            JSONArray array = new JSONArray(response);
+//            JSONObject c = null;
 //
-//            call = retrofitApi.getPost(jsonObject.toString());
+//            for (int i = 0; i <array.length() ; i++) {
+//                c = array.getJSONObject(i);
+//
+//                String voter_namemarathi = c.getString("voter_namemarathi");
+//                int part_no = Integer.parseInt(c.getString("part_no"));
+//                String gender = c.getString("gender");
+//                int age = Integer.parseInt(c.getString("age"));
+//                String voterno = c.getString("voterno");
+//
+//                VoterModel voterModel = new VoterModel(voter_namemarathi,gender,voterno,age,part_no);
+//                list.add(voterModel);
+//            }
+//
+//            adapter.notifyDataSetChanged();
+//
 //        } catch (JSONException e) {
 //            e.printStackTrace();
 //        }
-//
-//
-//
-//
-//
-//        call.enqueue(new Callback<List<VoterModel>>() {
-//            @Override
-//            public void onResponse(Call<List<VoterModel>> call, Response<List<VoterModel>> response) {
-//                if (!response.isSuccessful()) {
-//                    Toast.makeText(MainActivity.this, "Response Code " + response.code(), Toast.LENGTH_SHORT).show();
-//                }
-//
-//                List<VoterModel> voterModels = response.body();
-////
-//                for (VoterModel voterModel : voterModels) {
-//
-//                    String content = "";
-//                    content += "Voter id: " + voterModel.voter_id + "\n";
-//                    content += "Voter serialno: " + voterModel.votersrno + "\n";
-//                    content += "Voting center: " + voterModel.VOTING_CENTER + "\n";
-//                    content += "Voter no: " + voterModel.voterno + "\n";
-//
-//                    textView.append(content);
-//                }
-//
-//            }
-//            @Override
-//            public void onFailure(Call<List<VoterModel>> call, Throwable t) {
-//
-//            }
-//        });
-//
-//
-////        Call<List<VoterModel>> call = retrofitApi.getPost(jsonObject.toString());
-////
-////        call.enqueue(new Callback<List<VoterModel>>() {
-////            @Override
-////            public void onResponse(Call<List<VoterModel>> call, Response<List<VoterModel>> response) {
-////                if (!response.isSuccessful()) {
-////                    Toast.makeText(MainActivity.this, "Response Code " + response.code(), Toast.LENGTH_SHORT).show();
-////                }
-////
-////                List<VoterModel> voterModels = response.body();
-////
-////                for (VoterModel voterModel : voterModels) {
-////
-////                    String content = "";
-////                    content += "Voter id: "+voterModel.voter_id + "\n";
-////                    content += "Voter serialno: "+voterModel.votersrno + "\n";
-////                    content += "Voting center: "+voterModel.VOTING_CENTER + "\n";
-////                    content += "Voter no: "+voterModel.voterno + "\n";
-////
-////                    textView.append(content);
-////                }
-////            }
-////
-////            @Override
-////            public void onFailure(Call<List<VoterModel>> call, Throwable t) {
-////                    textView.setText(t.getMessage());
-////            }
-////        });
 //    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+//        new getVoterData().execute();
+    }
+
+    private class getVoterData extends AsyncTask<Void,Void,List<VoterModel>> {
+        @Override
+        protected List<VoterModel> doInBackground(Void... voids) {
+
+            list = VoterDatabaseClient.getInstance(MainActivity.this)
+                    .getVoterDataBase()
+                    .retrofitDao()
+                    .getAllVoter();
+
+            return list;
+        }
+
+        @Override
+        protected void onPostExecute(List<VoterModel> voterModels) {
+            super.onPostExecute(voterModels);
+
+            VoterAdapter adapter = new VoterAdapter(voterModels,MainActivity.this);
+            recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
+            recyclerView.setAdapter(adapter);
+            recyclerView.setHasFixedSize(true);
+            adapter.notifyDataSetChanged();
+        }
+    }
 }

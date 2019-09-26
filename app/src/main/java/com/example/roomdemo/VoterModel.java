@@ -1,18 +1,66 @@
 package com.example.roomdemo;
 
-public class VoterModel {
-    public String voter_namemarathi,gender,voterno,VOTING_CENTER;
-    public int voter_id,votersrno,age,part_no;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
 
-    public VoterModel(String voter_namemarathi, String gender, String voterno, String VOTING_CENTER, int voter_id, int votersrno, int age, int part_no) {
-        this.voter_namemarathi = voter_namemarathi;
-        this.gender = gender;
-        this.voterno = voterno;
+@Entity
+public class VoterModel {
+
+
+    String VOTING_CENTER;
+    int age;
+    String gender;
+    @PrimaryKey(autoGenerate = true)
+    private int id;
+    public String voter_namemarathi;
+    String voterno;
+    int votersrno;
+
+    int part_no;
+
+
+    public int voter_id;
+
+    public VoterModel(String VOTING_CENTER, int age, String gender, int id, String voter_namemarathi, String voterno, int votersrno, int part_no, int voter_id) {
         this.VOTING_CENTER = VOTING_CENTER;
-        this.voter_id = voter_id;
-        this.votersrno = votersrno;
         this.age = age;
+        this.gender = gender;
+        this.id = id;
+        this.voter_namemarathi = voter_namemarathi;
+        this.voterno = voterno;
+        this.votersrno = votersrno;
         this.part_no = part_no;
+        this.voter_id = voter_id;
+    }
+
+
+    //    public VoterModel(String voter_namemarathi, String gender, String voterno, String VOTING_CENTER, int voter_id, int votersrno, int age, int part_no) {
+//        this.voter_namemarathi = voter_namemarathi;
+//        this.gender = gender;
+//        this.voterno = voterno;
+//        this.VOTING_CENTER = VOTING_CENTER;
+//        this.voter_id = voter_id;
+//        this.votersrno = votersrno;
+//        this.age = age;
+//        this.part_no = part_no;
+//    }
+
+
+//    public VoterModel(String voter_namemarathi, String gender, String voterno, int age, int part_no) {
+//        this.voter_namemarathi = voter_namemarathi;
+//        this.gender = gender;
+//        this.voterno = voterno;
+//        this.age = age;
+//        this.part_no = part_no;
+//    }
+
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getVoter_namemarathi() {
