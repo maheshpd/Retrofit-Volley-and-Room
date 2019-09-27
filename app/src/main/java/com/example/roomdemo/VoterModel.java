@@ -5,13 +5,13 @@ import androidx.room.PrimaryKey;
 
 @Entity
 public class VoterModel {
-
+    @PrimaryKey(autoGenerate = true)
+    private int id;
 
     String VOTING_CENTER;
     int age;
     String gender;
-    @PrimaryKey(autoGenerate = true)
-    private int id;
+
     public String voter_namemarathi;
     String voterno;
     int votersrno;
@@ -21,11 +21,14 @@ public class VoterModel {
 
     public int voter_id;
 
-    public VoterModel(String VOTING_CENTER, int age, String gender, int id, String voter_namemarathi, String voterno, int votersrno, int part_no, int voter_id) {
+
+//    public VoterModel() {
+//    }
+
+    public VoterModel(String VOTING_CENTER, int age, String gender, String voter_namemarathi, String voterno, int votersrno, int part_no, int voter_id) {
         this.VOTING_CENTER = VOTING_CENTER;
         this.age = age;
         this.gender = gender;
-        this.id = id;
         this.voter_namemarathi = voter_namemarathi;
         this.voterno = voterno;
         this.votersrno = votersrno;

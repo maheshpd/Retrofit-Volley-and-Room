@@ -34,16 +34,24 @@ public class VoterAdapter extends RecyclerView.Adapter< VoterAdapter.VoterViewHo
     public void onBindViewHolder(@NonNull VoterViewHolder holder, int position) {
         VoterModel vm = list.get(position);
 
-        holder.voterid.setText("1");
+
 
         holder.marathiname.setText(vm.getVoter_namemarathi());
-//        holder.age.setText(vm.getAge());
-//        holder.gender.setText(vm.getGender());
-//        holder.voterno.setText(vm.getVoterno());
-//        holder.partno.setText(vm.getPart_no());
 
+        holder.gender.setText(vm.getGender());
+        holder.voterno.setText(vm.getVoterno());
+//
+        holder.age.setText(vm.getAge()+"");
+holder.partno.setText(vm.getPart_no()+"");
+//
+        holder.voterid.setText(vm.getVoter_id()+"");
 
+        holder.Voterserino.setText(vm.getVotersrno()+"");
+        holder.votingcenter.setText(vm.getVOTING_CENTER());
     }
+
+
+
 
     @Override
     public int getItemCount() {
@@ -51,7 +59,7 @@ public class VoterAdapter extends RecyclerView.Adapter< VoterAdapter.VoterViewHo
     }
 
     class VoterViewHolder extends RecyclerView.ViewHolder{
-        TextView marathiname,partno,gender,voterno,age,voterid;
+        TextView marathiname,partno,gender,voterno,age,voterid,Voterserino,votingcenter;
         public VoterViewHolder(@NonNull View itemView) {
             super(itemView);
 
@@ -61,6 +69,8 @@ public class VoterAdapter extends RecyclerView.Adapter< VoterAdapter.VoterViewHo
             voterno=itemView.findViewById(R.id.voterno);
             age=itemView.findViewById(R.id.age);
             voterid=itemView.findViewById(R.id.voterid);
+            Voterserino=itemView.findViewById(R.id.Voterserino);
+            votingcenter=itemView.findViewById(R.id.votingcenter);
 
         }
     }
