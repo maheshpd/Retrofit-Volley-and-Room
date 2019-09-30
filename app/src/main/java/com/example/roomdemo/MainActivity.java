@@ -37,7 +37,8 @@ public class MainActivity extends AppCompatActivity {
     VoterAdapter adapter;
     ProgressBar moreDataProgressBar;
     String dataurl = "https://admin.electionwinner.in//ElectionRoute/Api_getallvoterthread";
-    List<VoterModel> list = new ArrayList<>();
+    List<VoterModel> onlinelist = new ArrayList<>();
+    List<VoterModel> offlinelist = new ArrayList<>();
 
     private int Voter_SrNo1 = 1;
     private int Voter_SrNo2 = 100;
@@ -72,9 +73,9 @@ public class MainActivity extends AppCompatActivity {
 //            }
 //        };
 
-        moreDataProgressBar = findViewById(R.id.progressbar);
+//        moreDataProgressBar = findViewById(R.id.progressbar);
         recyclerView = findViewById(R.id.recycler_data);
-         adapter = new VoterAdapter(list,MainActivity.this);
+//         adapter = new VoterAdapter(list,MainActivity.this);
 
 
     }
@@ -103,9 +104,9 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(MainActivity.this, "Response Code " + response.code(), Toast.LENGTH_SHORT).show();
                 }
 
-                 list =response.body();
-
-
+//                onlinelist =response.body();
+//
+                onlinelist.addAll(response.body());
                 new saveDena().execute();
 
 //                InsertData();
@@ -126,17 +127,17 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void InsertData() {
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-
-            }
-        }).start();
-
-
-    }
+//    private void InsertData() {
+//
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//
+//            }
+//        }).start();
+//
+//
+//    }
 
     private void writeRecycler(List<VoterModel> body) {
         VoterAdapter adapter = new VoterAdapter(body,MainActivity.this);
@@ -176,28 +177,29 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
 //
 
-        new Timer().scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-
-                new getVoterData().execute();
-            }
-        },0,10000);
+//        new Timer().scheduleAtFixedRate(new TimerTask() {
+//            @Override
+//            public void run() {
+//
+//                new getVoterData().execute();
+//            }
+//        },0,10000);
 
 
     }
 
 
     private class getVoterData extends AsyncTask<Void,Void,List<VoterModel>> {
+
         @Override
         protected List<VoterModel> doInBackground(Void... voids) {
 
-            list = VoterDatabaseClient.getInstance(MainActivity.this)
+            offlinelist = VoterDatabaseClient.getInstance(MainActivity.this)
                     .getVoterDataBase()
                     .retrofitDao()
                     .getAllVoter();
 
-            return list;
+            return offlinelist;
         }
 
         @Override
@@ -213,26 +215,47 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private class saveDena extends AsyncTask<Void, Void, Void>{
-        @Override
-        protected Void doInBackground(Void... voids) {
-            for (int i = 0; i <list.size() ; i++) {
-                namemarathi = list.get(i).getVoter_namemarathi();
-                partno = list.get(i).getPart_no();
-                age = list.get(i).getAge();
-                gender = list.get(i).getGender();
-                Voting_center = list.get(i).getVOTING_CENTER();
-                voterno = list.get(i).getVoterno();
-                voter_id = list.get(i).getVoter_id();
-                votersrno = list.get(i).getVotersrno();
+    private class saveDena extends AsyncTask<Void, Void, List<VoterModel>>{
 
-                Log.d( "name: ",list.get(i).getVoter_id()+" "+list.get(i).getVoter_namemarathi());
+        VoterModel voterModel;
+
+        @Override
+        protected List<VoterModel> doInBackground(Void... voids) {
+            for (int i = 0; i <onlinelist.size() ; i++) {
+                namemarathi = onlinelist.get(i).getVoter_namemarathi();
+                partno = onlinelist.get(i).getPart_no();
+                age = onlinelist.get(i).getAge();
+                gender = onlinelist.get(i).getGender();
+                Voting_center = onlinelist.get(i).getVOTING_CENTER();
+                voterno = onlinelist.get(i).getVoterno();
+                voter_id = onlinelist.get(i).getVoter_id();
+                votersrno = onlinelist.get(i).getVotersrno();
+
+                Log.d( "name: ",onlinelist.get(i).getVoter_id()+" "+onlinelist.get(i).getVoter_namemarathi());
+
+                voterModel = new VoterModel(Voting_center,age,gender,namemarathi,voterno,votersrno,partno,voter_id);
             }
 
-            VoterModel voterModel = new VoterModel(Voting_center,age,gender,namemarathi,voterno,votersrno,partno,voter_id);
+
 
             VoterDatabaseClient.getInstance(getApplicationContext()).getVoterDataBase().retrofitDao().insert(voterModel);
+
+
+
             return null;
         }
+
+        @Override
+        protected void onPostExecute(List<VoterModel> voterModels) {
+            super.onPostExecute(voterModels);
+
+            new getVoterData().execute();
+        }
+
+//        @Override
+//        protected void onPreExecute() {
+//            super.onPreExecute();
+//
+//        }
     }
 }
