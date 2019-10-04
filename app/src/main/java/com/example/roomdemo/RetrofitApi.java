@@ -11,5 +11,5 @@ import retrofit2.http.POST;
 public interface RetrofitApi {
 
     @POST("Api_getallvoterthread")
-    Call<List<VoterModel>> getPost(@Body RequestBody params);
+    Call<List<VoterModel1>> getPost(@Body RequestBody params);
 }

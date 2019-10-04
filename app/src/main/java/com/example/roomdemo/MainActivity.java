@@ -1,35 +1,73 @@
 package com.example.roomdemo;
 
-import android.annotation.SuppressLint;
+import android.Manifest;
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.ArrayMap;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.GridView;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.ScrollView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import okhttp3.RequestBody;
+import pub.devrel.easypermissions.EasyPermissions;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity {
+    private static final String TAG = "MainActivity";
+
     private RetrofitApi retrofitApi;
     private RetrofitDao retrofitDao;
 
@@ -37,191 +75,154 @@ public class MainActivity extends AppCompatActivity {
     VoterAdapter adapter;
     ProgressBar moreDataProgressBar;
     String dataurl = "https://admin.electionwinner.in//ElectionRoute/Api_getallvoterthread";
-    List<VoterModel> onlinelist = new ArrayList<>();
+    String total_count = "https://admin.electionwinner.in//ElectionRoute/Api_getallvoterthreadcount";
+    List<VoterModel1> onlinelist = new ArrayList<>();
     List<VoterModel> offlinelist = new ArrayList<>();
 
-    private int Voter_SrNo1 = 1;
-    private int Voter_SrNo2 = 100;
+    private int Voter_SrNo1;
+    private int Voter_SrNo2;
 
-    String namemarathi,gender,Voting_center,voterno;
-    int partno,age,votersrno,voter_id;
+    String namemarathi, gender, Voting_center, voterno;
+    int partno, age, votersrno, voter_id;
+
+    LinearLayout lin;
+
+    ProgressDialog dialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        getPost();
-
-//        new Timer().scheduleAtFixedRate(new TimerTask() {
-//            @Override
-//            public void run() {
-//
-//                Log.d( "run: ","1");
-//
-//
-//            }
-//        },0,10000);
-
-
-//        final Handler handler = new Handler();
-//        final Runnable perioddicUpdate = new Runnable() {
-//            @Override
-//            public void run() {
-//
-//                handler.postDelayed(,10*1000,sd)
-//
-//            }
-//        };
-
-//        moreDataProgressBar = findViewById(R.id.progressbar);
         recyclerView = findViewById(R.id.recycler_data);
-//         adapter = new VoterAdapter(list,MainActivity.this);
+        lin = findViewById(R.id.buttonLin);
+        dialog = new ProgressDialog(this);
 
+        for (int i = 1; i <= 293054; i++) {
+            final Button votercountBtn = new Button(this);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            lp.setMargins(20, 0, 20, 0);
+            Voter_SrNo1 = i;
+            Voter_SrNo2 = i + 10000;
+            votercountBtn.setText(Voter_SrNo1 + "-" + Voter_SrNo2);
+            votercountBtn.setId(i);
+            i = i + 10000;
+            votercountBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                    String text = votercountBtn.getText().toString();
+                    String[] firstNo = text.split("-");
+                    Voter_SrNo1 = Integer.parseInt(firstNo[0]);
+                    Voter_SrNo2 = Integer.parseInt(firstNo[1]);
+                    votercountBtn.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+                    votercountBtn.setTextColor(getResources().getColor(android.R.color.white));
+                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                    builder.setMessage(Voter_SrNo1 + "-" + Voter_SrNo2 + " Do you want to download file?");
+                    builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.dismiss();
+                        }
+                    });
+                    builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialog.setMessage("File is downloading...");
+                            dialog.setCanceledOnTouchOutside(false);
+                            dialog.show();
+
+
+                            Log.d(TAG, "Voter_SrNo1: " + Voter_SrNo1);
+                            Log.d(TAG, "Voter_SrNo2: " + Voter_SrNo2);
+
+//                            getPost(Voter_SrNo1, Voter_SrNo2);
+
+                                getPost(Voter_SrNo1,Voter_SrNo2);
+
+                        }
+                    });
+                    builder.show();
+
+
+                }
+            });
+
+            lin.addView(votercountBtn);
+        }
 
     }
 
-    private void getPost() {
+
+
+    private void getPost(int Voter_SrNo1, int Voter_SrNo2) {
         Map<String, Object> jsonParam = new ArrayMap<>();
         jsonParam.put("Voter_SrNo1", Voter_SrNo1);
         jsonParam.put("Voter_SrNo2", Voter_SrNo2);
 
-        Gson gson = new GsonBuilder().serializeNulls().create();
+        Gson gson;
+        gson = new GsonBuilder().serializeNulls().create();
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://admin.electionwinner.in//ElectionRoute/")
+                .baseUrl("https://admin.electionwinner.in/ElectionRoute/")
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
         retrofitApi = retrofit.create(RetrofitApi.class);
 
-        RequestBody body = RequestBody.create(okhttp3.MediaType.parse("application/json; charset=utf-8"),(new JSONObject(jsonParam)).toString());
+        RequestBody body = RequestBody.create(okhttp3.MediaType.parse("application/json; charset=utf-8"), (new JSONObject(jsonParam)).toString());
 
-        Call<List<VoterModel>> call = retrofitApi.getPost(body);
-
-        call.enqueue(new Callback<List<VoterModel>>() {
+        Call<List<VoterModel1>> call = retrofitApi.getPost(body);
+        onlinelist.clear();
+        call.enqueue(new Callback<List<VoterModel1>>() {
             @Override
-            public void onResponse(Call<List<VoterModel>> call, retrofit2.Response<List<VoterModel>> response) {
+            public void onResponse(Call<List<VoterModel1>> call, retrofit2.Response<List<VoterModel1>> response) {
                 if (!response.isSuccessful()) {
                     Toast.makeText(MainActivity.this, "Response Code " + response.code(), Toast.LENGTH_SHORT).show();
                 }
-
-//                onlinelist =response.body();
-//
                 onlinelist.addAll(response.body());
-                new saveDena().execute();
+                new saveInVotter().execute();
 
-//                InsertData();
-
-//
-
-//                if (response.body().get(0).get)
-
-
-//                writeRecycler(response.body());
             }
 
             @Override
-            public void onFailure(Call<List<VoterModel>> call, Throwable t) {
-
+            public void onFailure(Call<List<VoterModel1>> call, Throwable t) {
+                dialog.dismiss();
             }
         });
+        Bitmap res = null;
+        Glide.with(this)
+                .asBitmap()
+                .load("")
+                .into(new CustomTarget<Bitmap>() {
+                    @Override
+                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                        Bitmap res = resource;
+                    }
+
+                    @Override
+                    public void onLoadCleared(@Nullable Drawable placeholder) {
+
+                    }
+                });
+
+        ImageView imageView = new ImageView(this);
+        imageView.setImageBitmap(res);
 
     }
 
-//    private void InsertData() {
-//
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//
-//            }
-//        }).start();
-//
-//
-//    }
-
-    private void writeRecycler(List<VoterModel> body) {
-        VoterAdapter adapter = new VoterAdapter(body,MainActivity.this);
-        recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
-        recyclerView.setAdapter(adapter);
-        recyclerView.setHasFixedSize(true);
-        adapter.notifyDataSetChanged();
-    }
-
-//    private void writeRecycler(Response<List<VoterModel>> response) {
-//        try {
-//            JSONArray array = new JSONArray(response);
-//            JSONObject c = null;
-//
-//            for (int i = 0; i <array.length() ; i++) {
-//                c = array.getJSONObject(i);
-//
-//                String voter_namemarathi = c.getString("voter_namemarathi");
-//                int part_no = Integer.parseInt(c.getString("part_no"));
-//                String gender = c.getString("gender");
-//                int age = Integer.parseInt(c.getString("age"));
-//                String voterno = c.getString("voterno");
-//
-//                VoterModel voterModel = new VoterModel(voter_namemarathi,gender,voterno,age,part_no);
-//                list.add(voterModel);
-//            }
-//
-//            adapter.notifyDataSetChanged();
-//
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
-//    }
 
     @Override
     protected void onResume() {
         super.onResume();
-//
-
-//        new Timer().scheduleAtFixedRate(new TimerTask() {
-//            @Override
-//            public void run() {
-//
-//                new getVoterData().execute();
-//            }
-//        },0,10000);
-
 
     }
 
-
-    private class getVoterData extends AsyncTask<Void,Void,List<VoterModel>> {
-
-        @Override
-        protected List<VoterModel> doInBackground(Void... voids) {
-
-            offlinelist = VoterDatabaseClient.getInstance(MainActivity.this)
-                    .getVoterDataBase()
-                    .retrofitDao()
-                    .getAllVoter();
-
-            return offlinelist;
-        }
-
-        @Override
-        protected void onPostExecute(List<VoterModel> voterModels) {
-            super.onPostExecute(voterModels);
-
-            VoterAdapter adapter = new VoterAdapter(voterModels,MainActivity.this);
-            recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
-            recyclerView.setAdapter(adapter);
-            recyclerView.setHasFixedSize(true);
-            adapter.notifyDataSetChanged();
-        }
-    }
-
-
-    private class saveDena extends AsyncTask<Void, Void, List<VoterModel>>{
+    private class saveInVotter extends AsyncTask<Void, Void, List<VoterModel>> {
 
         VoterModel voterModel;
 
         @Override
         protected List<VoterModel> doInBackground(Void... voids) {
-            for (int i = 0; i <onlinelist.size() ; i++) {
+            for (int i = 0; i < onlinelist.size(); i++) {
                 namemarathi = onlinelist.get(i).getVoter_namemarathi();
                 partno = onlinelist.get(i).getPart_no();
                 age = onlinelist.get(i).getAge();
@@ -231,15 +232,11 @@ public class MainActivity extends AppCompatActivity {
                 voter_id = onlinelist.get(i).getVoter_id();
                 votersrno = onlinelist.get(i).getVotersrno();
 
-                Log.d( "name: ",onlinelist.get(i).getVoter_id()+" "+onlinelist.get(i).getVoter_namemarathi());
+                voterModel = new VoterModel(Voting_center, age, gender, namemarathi, voterno, votersrno, partno, voter_id);
 
-                voterModel = new VoterModel(Voting_center,age,gender,namemarathi,voterno,votersrno,partno,voter_id);
+                VoterDatabaseClient.getInstance(getApplicationContext()).getVoterDataBase().retrofitDao().insert(voterModel);
+
             }
-
-
-
-            VoterDatabaseClient.getInstance(getApplicationContext()).getVoterDataBase().retrofitDao().insert(voterModel);
-
 
 
             return null;
@@ -248,14 +245,25 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(List<VoterModel> voterModels) {
             super.onPostExecute(voterModels);
-
-            new getVoterData().execute();
+            dialog.dismiss();
+//            new getVoterData().execute();
         }
 
-//        @Override
-//        protected void onPreExecute() {
-//            super.onPreExecute();
-//
-//        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.download, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.download) {
+            startActivity(new Intent(MainActivity.this, DefaultScreen.class));
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

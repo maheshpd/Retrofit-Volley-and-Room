@@ -2,7 +2,9 @@ package com.example.roomdemo;
 
 import android.content.Context;
 
+import androidx.room.Entity;
 import androidx.room.Room;
+
 
 public class VoterDatabaseClient {
     private static VoterDatabaseClient mInstance;

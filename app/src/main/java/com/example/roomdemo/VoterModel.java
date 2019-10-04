@@ -1,10 +1,13 @@
 package com.example.roomdemo;
 
 import androidx.room.Entity;
+import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
+//@Entity(indices = {@Index(value ={"voter_id","voter_namemarathi","part_no","votersrno","voterno"},unique = true)})
 @Entity
 public class VoterModel {
+
     @PrimaryKey(autoGenerate = true)
     private int id;
 
@@ -35,29 +38,6 @@ public class VoterModel {
         this.part_no = part_no;
         this.voter_id = voter_id;
     }
-
-
-    //    public VoterModel(String voter_namemarathi, String gender, String voterno, String VOTING_CENTER, int voter_id, int votersrno, int age, int part_no) {
-//        this.voter_namemarathi = voter_namemarathi;
-//        this.gender = gender;
-//        this.voterno = voterno;
-//        this.VOTING_CENTER = VOTING_CENTER;
-//        this.voter_id = voter_id;
-//        this.votersrno = votersrno;
-//        this.age = age;
-//        this.part_no = part_no;
-//    }
-
-
-//    public VoterModel(String voter_namemarathi, String gender, String voterno, int age, int part_no) {
-//        this.voter_namemarathi = voter_namemarathi;
-//        this.gender = gender;
-//        this.voterno = voterno;
-//        this.age = age;
-//        this.part_no = part_no;
-//    }
-
-
     public int getId() {
         return id;
     }

@@ -52,4 +52,6 @@ public class DBHelper extends SQLiteAssetHelper {
         return printModelList;
 
     }
+
+    //voter_id,voter_namemarathi,part_no, center_no, voterno,votersrno,VOTING_CENTER
 }

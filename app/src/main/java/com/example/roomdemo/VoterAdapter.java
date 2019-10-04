@@ -36,14 +36,13 @@ public class VoterAdapter extends RecyclerView.Adapter< VoterAdapter.VoterViewHo
 
 
 
-        holder.marathiname.setText(vm.getVoter_namemarathi());
+        holder.marathiname.setText(vm.getId()+" / "+vm.getVoter_namemarathi());
 
         holder.gender.setText(vm.getGender());
         holder.voterno.setText(vm.getVoterno());
 //
         holder.age.setText(vm.getAge()+"");
-holder.partno.setText(vm.getPart_no()+"");
-//
+        holder.partno.setText(vm.getPart_no()+"");
         holder.voterid.setText(vm.getVoter_id()+"");
 
         holder.Voterserino.setText(vm.getVotersrno()+"");
@@ -73,5 +72,12 @@ holder.partno.setText(vm.getPart_no()+"");
             votingcenter=itemView.findViewById(R.id.votingcenter);
 
         }
+    }
+
+    public void setFilter(ArrayList<VoterModel> newList)
+    {
+        list = new ArrayList<>();
+        list.addAll(newList);
+        notifyDataSetChanged();
     }
 }
