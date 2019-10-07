@@ -1,6 +1,5 @@
 package com.example.roomdemo;
 
-import android.Manifest;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -15,23 +14,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
-import android.widget.ScrollView;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
@@ -39,29 +27,21 @@ import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import okhttp3.RequestBody;
-import pub.devrel.easypermissions.EasyPermissions;
 import retrofit2.Call;
 import retrofit2.Callback;
+import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -89,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
 
     ProgressDialog dialog;
 
+    List<TotalCountModel> totlaVoterCount;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -97,7 +78,43 @@ public class MainActivity extends AppCompatActivity {
         lin = findViewById(R.id.buttonLin);
         dialog = new ProgressDialog(this);
 
-        for (int i = 1; i <= 293054; i++) {
+
+        getAllVoterCount();
+    }
+
+    private void getAllVoterCount() {
+
+        retrofitApi = RetrofitInstance.getRetrofitInstance().create(RetrofitApi.class);
+        Call<List<TotalCountModel>> call = retrofitApi.getData();
+        call.enqueue(new Callback<List<TotalCountModel>>() {
+            @Override
+            public void onResponse(Call<List<TotalCountModel>> call, Response<List<TotalCountModel>> response) {
+                if (!response.isSuccessful()) {
+                    Toast.makeText(MainActivity.this, "Response Code", Toast.LENGTH_SHORT).show();
+                }
+                totlaVoterCount = response.body();
+
+                if (totlaVoterCount.size()== 0) {
+                    Toast.makeText(MainActivity.this, "No voter data", Toast.LENGTH_SHORT).show();
+                } else {
+                    displayButton(totlaVoterCount);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<TotalCountModel>> call, Throwable t) {
+
+            }
+        });
+
+
+    }
+
+    private void displayButton(List<TotalCountModel> totlaVoterCount) {
+
+        int totalcount = Integer.parseInt(totlaVoterCount.get(0).getTotalcount());
+
+        for (int i = 1; i <= totalcount; i++) {
             final Button votercountBtn = new Button(this);
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
             lp.setMargins(20, 0, 20, 0);
@@ -137,7 +154,7 @@ public class MainActivity extends AppCompatActivity {
 
 //                            getPost(Voter_SrNo1, Voter_SrNo2);
 
-                                getPost(Voter_SrNo1,Voter_SrNo2);
+                            getPost(Voter_SrNo1,Voter_SrNo2);
 
                         }
                     });
@@ -149,9 +166,7 @@ public class MainActivity extends AppCompatActivity {
 
             lin.addView(votercountBtn);
         }
-
     }
-
 
 
     private void getPost(int Voter_SrNo1, int Voter_SrNo2) {
