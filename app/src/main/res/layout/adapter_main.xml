@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="5dp"
+
+    android:id="@+id/cardview_main"
+    android:background="@drawable/cardbackground">
+
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:layout_margin="2dp">
+    <!--<TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/main_adapter_count"
+        android:textColor="@color/Black"
+        android:text="1 "
+        android:padding="5dp"
+        android:layout_margin="2dp"
+
+        />-->
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_weight="1"
+        >
+        <TextView
+            android:id="@+id/marathiname"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Name "
+            android:padding="1dp"
+            android:layout_margin="2dp"
+
+            />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/age"
+            android:text="Voter number "
+            android:padding="1dp"
+            android:layout_margin="2dp"
+            />
+
+        <TextView
+            android:id="@+id/gender"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="2dp"
+            android:padding="1dp"
+            /><TextView
+        android:id="@+id/voterid"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="2dp"
+            android:padding="1dp"
+            /><TextView
+        android:id="@+id/Voterserino"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="2dp"
+            android:padding="1dp"
+            /><TextView
+        android:id="@+id/votingcenter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="2dp"
+            android:padding="1dp"
+            />
+
+
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="2dp"
+            android:padding="1dp"
+            android:id="@+id/voterno"
+            />
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+
+    >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="2dp"
+            android:padding="1dp"
+
+            android:gravity="center_horizontal"
+            android:layout_gravity="center_horizontal"
+            android:id="@+id/partno"
+
+            />
+
+    <TextView
+        android:id="@+id/main_adapter_print"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_margin="2dp"
+
+        android:gravity="center_horizontal"
+        android:padding="1dp"
+        android:visibility="visible"/>
+   <!-- <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/dotimg"
+        android:layout_margin="5dp"
+        android:padding="5dp"
+        android:layout_gravity="center_horizontal|center|top|left"
+        android:src="@drawable/ic_dot_green"
+        android:visibility="gone"/>&ndash;&gt;-->
+</LinearLayout>
+    </LinearLayout>
+<!--<LinearLayout
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+
+    <TextView
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="count"
+    android:layout_margin="5dp"
+    android:padding="2dp"
+    android:textColor="@color/black"
+    android:id="@+id/main_adapter_edit_count"
+    />
+
+
+   &lt;!&ndash; <CheckBox
+        android:id="@+id/checkBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:text="CheckBox"
+        android:layout_gravity="right|bottom"
+        android:gravity="right|bottom"
+        android:visibility="gone"/>&ndash;&gt;
+
+</LinearLayout>-->
+</LinearLayout>
+</androidx.cardview.widget.CardView>

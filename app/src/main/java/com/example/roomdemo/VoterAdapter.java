@@ -26,7 +26,7 @@ public class VoterAdapter extends RecyclerView.Adapter< VoterAdapter.VoterViewHo
     @Override
     public VoterViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.voter_item,parent,false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.adapter_main,parent,false);
         return new VoterViewHolder(view);
     }
 
@@ -36,17 +36,17 @@ public class VoterAdapter extends RecyclerView.Adapter< VoterAdapter.VoterViewHo
 
 
 
-        holder.marathiname.setText(vm.getId()+" / "+vm.getVoter_namemarathi());
+        holder.marathiname.setText("Name: "+vm.getVoter_namemarathi());
 
-        holder.gender.setText(vm.getGender());
-        holder.voterno.setText(vm.getVoterno());
+        holder.gender.setText("Gender: "+vm.getGender());
+        holder.voterno.setText("Voter no: "+vm.getVoterno());
 //
-        holder.age.setText(vm.getAge()+"");
-        holder.partno.setText(vm.getPart_no()+"");
-        holder.voterid.setText(vm.getVoter_id()+"");
+        holder.age.setText("Age: "+vm.getAge()+"");
+        holder.partno.setText("Part No: "+vm.getPart_no()+"");
+        holder.voterid.setText("Voter Id: "+vm.getVoter_id()+"");
 
-        holder.Voterserino.setText(vm.getVotersrno()+"");
-        holder.votingcenter.setText(vm.getVOTING_CENTER());
+        holder.Voterserino.setText("Voters no: "+vm.getVotersrno()+"");
+        holder.votingcenter.setText("Voting Center: "+vm.getVOTING_CENTER());
     }
 
 

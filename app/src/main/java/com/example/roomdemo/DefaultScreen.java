@@ -2,6 +2,7 @@ package com.example.roomdemo;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import pub.devrel.easypermissions.EasyPermissions;
@@ -207,7 +208,7 @@ public class DefaultScreen extends AppCompatActivity implements SearchView.OnQue
             super.onPostExecute(voterModels);
 
             adapter = new VoterAdapter(voterModels, DefaultScreen.this);
-            recyclerView.setLayoutManager(new LinearLayoutManager(DefaultScreen.this));
+            recyclerView.setLayoutManager(new GridLayoutManager(DefaultScreen.this,2));
             recyclerView.setAdapter(adapter);
             recyclerView.setHasFixedSize(true);
             adapter.notifyDataSetChanged();

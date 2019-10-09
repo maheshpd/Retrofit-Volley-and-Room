@@ -1,5 +1,6 @@
 package com.example.roomdemo;
 
+import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
@@ -10,25 +11,25 @@ public class VoterModel {
 
     @PrimaryKey(autoGenerate = true)
     private int id;
-
     String VOTING_CENTER;
     int age;
     String gender;
-
     public String voter_namemarathi;
     String voterno;
     int votersrno;
-
     int part_no;
-
-
     public int voter_id;
 
+    public final static String COL_POS = "position";
+
+    @ColumnInfo(name = COL_POS)
+    public int position;
 
 //    public VoterModel() {
 //    }
 
-    public VoterModel(String VOTING_CENTER, int age, String gender, String voter_namemarathi, String voterno, int votersrno, int part_no, int voter_id) {
+
+    public VoterModel(String VOTING_CENTER, int age, String gender, String voter_namemarathi, String voterno, int votersrno, int part_no, int voter_id, int position) {
         this.VOTING_CENTER = VOTING_CENTER;
         this.age = age;
         this.gender = gender;
@@ -37,7 +38,10 @@ public class VoterModel {
         this.votersrno = votersrno;
         this.part_no = part_no;
         this.voter_id = voter_id;
+        this.position = position;
     }
+
+
     public int getId() {
         return id;
     }
@@ -108,5 +112,13 @@ public class VoterModel {
 
     public void setPart_no(int part_no) {
         this.part_no = part_no;
+    }
+
+    public int getPosition() {
+        return position;
+    }
+
+    public void setPosition(int position) {
+        this.position = position;
     }
 }

@@ -13,4 +13,7 @@ public interface RetrofitDao {
 
     @Insert
     void insert(VoterModel voterModel);
+
+    @Query("SELECT " + VoterModel.COL_POS + " FROM VoterModel")
+    List<Integer> getButtonText();
 }

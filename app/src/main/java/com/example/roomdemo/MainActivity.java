@@ -4,8 +4,6 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.ArrayMap;
@@ -14,29 +12,25 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.target.CustomTarget;
-import com.bumptech.glide.request.transition.Transition;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import okhttp3.RequestBody;
 import retrofit2.Call;
@@ -64,12 +58,17 @@ public class MainActivity extends AppCompatActivity {
 
     String namemarathi, gender, Voting_center, voterno;
     int partno, age, votersrno, voter_id;
+    int position;
 
     LinearLayout lin;
 
     ProgressDialog dialog;
 
     List<TotalCountModel> totlaVoterCount;
+
+    List<Integer> buttonText;
+
+    int rp;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recycler_data);
         lin = findViewById(R.id.buttonLin);
         dialog = new ProgressDialog(this);
+
 
 
         getAllVoterCount();
@@ -97,7 +97,9 @@ public class MainActivity extends AppCompatActivity {
                 if (totlaVoterCount.size()== 0) {
                     Toast.makeText(MainActivity.this, "No voter data", Toast.LENGTH_SHORT).show();
                 } else {
-                    displayButton(totlaVoterCount);
+
+                    new getButtonText().execute();
+
                 }
             }
 
@@ -119,20 +121,42 @@ public class MainActivity extends AppCompatActivity {
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
             lp.setMargins(20, 0, 20, 0);
             Voter_SrNo1 = i;
-            Voter_SrNo2 = i + 10000;
+            Voter_SrNo2 = i + 20000;
             votercountBtn.setText(Voter_SrNo1 + "-" + Voter_SrNo2);
             votercountBtn.setId(i);
-            i = i + 10000;
+            i = i + 20000;
+
+            Set<Integer> set = new HashSet<>(buttonText);
+            for (final Integer r: set) {
+                rp = Collections.frequency(buttonText,r);
+
+                if (r==i){
+                    votercountBtn.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+                    votercountBtn.setTextColor(getResources().getColor(android.R.color.white));
+                    votercountBtn.setEnabled(false);
+                }
+            }
+
             votercountBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-
                     String text = votercountBtn.getText().toString();
                     String[] firstNo = text.split("-");
                     Voter_SrNo1 = Integer.parseInt(firstNo[0]);
                     Voter_SrNo2 = Integer.parseInt(firstNo[1]);
-                    votercountBtn.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
-                    votercountBtn.setTextColor(getResources().getColor(android.R.color.white));
+//                            if (r== Voter_SrNo2) {
+//                                AlertDialog.Builder builder = new AlertDialog.Builder(getApplicationContext());
+//                                builder.setMessage("File is Already Downloaded");
+//                                builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+//                                    @Override
+//                                    public void onClick(DialogInterface dialogInterface, int i) {
+//                                        dialogInterface.dismiss();
+//                                    }
+//                                });
+//                                builder.show();
+//                            } else {
+
+
                     AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                     builder.setMessage(Voter_SrNo1 + "-" + Voter_SrNo2 + " Do you want to download file?");
                     builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -144,26 +168,21 @@ public class MainActivity extends AppCompatActivity {
                     builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
+                            votercountBtn.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+                            votercountBtn.setTextColor(getResources().getColor(android.R.color.white));
+                            votercountBtn.setEnabled(false);
+                            position = Voter_SrNo2;
                             dialog.setMessage("File is downloading...");
                             dialog.setCanceledOnTouchOutside(false);
                             dialog.show();
 
-
-                            Log.d(TAG, "Voter_SrNo1: " + Voter_SrNo1);
-                            Log.d(TAG, "Voter_SrNo2: " + Voter_SrNo2);
-
-//                            getPost(Voter_SrNo1, Voter_SrNo2);
-
-                            getPost(Voter_SrNo1,Voter_SrNo2);
+                            getPost(Voter_SrNo1, Voter_SrNo2);
 
                         }
                     });
                     builder.show();
-
-
                 }
             });
-
             lin.addView(votercountBtn);
         }
     }
@@ -203,37 +222,16 @@ public class MainActivity extends AppCompatActivity {
                 dialog.dismiss();
             }
         });
-        Bitmap res = null;
-        Glide.with(this)
-                .asBitmap()
-                .load("")
-                .into(new CustomTarget<Bitmap>() {
-                    @Override
-                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                        Bitmap res = resource;
-                    }
-
-                    @Override
-                    public void onLoadCleared(@Nullable Drawable placeholder) {
-
-                    }
-                });
-
-        ImageView imageView = new ImageView(this);
-        imageView.setImageBitmap(res);
 
     }
 
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-    }
 
     private class saveInVotter extends AsyncTask<Void, Void, List<VoterModel>> {
 
         VoterModel voterModel;
+
+
 
         @Override
         protected List<VoterModel> doInBackground(Void... voids) {
@@ -247,7 +245,7 @@ public class MainActivity extends AppCompatActivity {
                 voter_id = onlinelist.get(i).getVoter_id();
                 votersrno = onlinelist.get(i).getVotersrno();
 
-                voterModel = new VoterModel(Voting_center, age, gender, namemarathi, voterno, votersrno, partno, voter_id);
+                voterModel = new VoterModel(Voting_center, age, gender, namemarathi, voterno, votersrno, partno, voter_id,position);
 
                 VoterDatabaseClient.getInstance(getApplicationContext()).getVoterDataBase().retrofitDao().insert(voterModel);
 
@@ -261,10 +259,40 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(List<VoterModel> voterModels) {
             super.onPostExecute(voterModels);
             dialog.dismiss();
+            Toast.makeText(MainActivity.this, "Datasave", Toast.LENGTH_SHORT).show();
+
+
+
+
 //            new getVoterData().execute();
         }
 
     }
+
+    private class getButtonText extends AsyncTask<Void, Void, List<Integer>> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+        }
+
+        @Override
+        protected List<Integer> doInBackground(Void... voids) {
+            buttonText = VoterDatabaseClient.getInstance(getApplicationContext()).getVoterDataBase().retrofitDao().getButtonText();
+            return buttonText;
+        }
+
+        @Override
+        protected void onPostExecute(List<Integer> voterModels) {
+            super.onPostExecute(voterModels);
+
+            displayButton(totlaVoterCount);
+
+
+        }
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
